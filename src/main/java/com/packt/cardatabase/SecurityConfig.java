@@ -12,12 +12,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Autowired
   private UserDetailsServiceImpl userDetailsService;
+
+  @Autowired
+  private AuthenticationFilter authenticationFilter;
 
   @Autowired
   public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -39,6 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
       // /login 엔드포인트에 대한 POST요청은 보호되지 않음
       .antMatchers(HttpMethod.POST, "/login").permitAll()
       // 다른 모든 요청은 보호됨
-      .anyRequest().authenticated();
+      .anyRequest().authenticated().and()
+      .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
   }
 }
